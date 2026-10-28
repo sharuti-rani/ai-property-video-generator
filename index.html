@@ -1,0 +1,1373 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description"
+        content="AI-powered property video generator. Turn property photos and details into professional promotional videos instantly.">
+    <title>Maison — Property Film Studio</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,500;0,600;1,400;1,500&family=Jost:wght@300;400;500;600&display=swap"
+        rel="stylesheet">
+
+    <style>
+        :root {
+            --ink: #0c0b0a;
+            --ink-2: #131110;
+            --panel: #17140f;
+            --field: #100e0c;
+            --field-focus: #1a1611;
+
+            --gold: #c9a96e;
+            --gold-soft: #e3cfa3;
+            --gold-deep: #9c7f48;
+            --gold-gradient: linear-gradient(135deg, #e3cfa3 0%, #c9a96e 45%, #9c7f48 100%);
+
+            --ivory: #f4efe6;
+            --text: #e9e3d8;
+            --text-2: #a8a095;
+            --text-3: #6f685e;
+
+            --line: rgba(201, 169, 110, 0.16);
+            --line-strong: rgba(201, 169, 110, 0.4);
+
+            --success: #8fb996;
+            --error: #d98b7e;
+
+            --serif: 'Cormorant Garamond', Georgia, serif;
+            --sans: 'Jost', system-ui, sans-serif;
+
+            --ease: cubic-bezier(0.22, 0.61, 0.36, 1);
+        }
+
+        *,
+        *::before,
+        *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: var(--sans);
+            font-weight: 300;
+            background: var(--ink);
+            color: var(--text);
+            line-height: 1.65;
+            min-height: 100vh;
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        /* Soft ambient light */
+        body::before {
+            content: '';
+            position: fixed;
+            inset: 0;
+            background:
+                radial-gradient(ellipse 800px 500px at 50% -10%, rgba(201, 169, 110, 0.12), transparent 70%),
+                radial-gradient(ellipse 600px 400px at 100% 100%, rgba(201, 169, 110, 0.05), transparent 70%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .app-wrapper {
+            position: relative;
+            z-index: 1;
+            max-width: 980px;
+            margin: 0 auto;
+            padding: 24px 28px 80px;
+        }
+
+        /* ---------- HEADER ---------- */
+        .header {
+            text-align: center;
+            padding: 88px 0 64px;
+        }
+
+        .header__badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 14px;
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.42em;
+            text-transform: uppercase;
+            color: var(--gold);
+            margin-bottom: 36px;
+        }
+
+        .header__badge .pulse {
+            width: 36px;
+            height: 1px;
+            background: var(--gold);
+            opacity: 0.7;
+        }
+
+        .header__badge .pulse:last-child {
+            display: none;
+        }
+
+        .header h1 {
+            font-family: var(--serif);
+            font-weight: 400;
+            font-size: clamp(2.8rem, 7vw, 5rem);
+            line-height: 1.02;
+            letter-spacing: -0.01em;
+            color: var(--ivory);
+            margin-bottom: 26px;
+        }
+
+        .header h1::after {
+            content: '';
+            display: block;
+            width: 56px;
+            height: 1px;
+            background: var(--gold-gradient);
+            margin: 30px auto 0;
+        }
+
+        .header p {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 1.3rem;
+            color: var(--text-2);
+            max-width: 560px;
+            margin: 0 auto;
+            line-height: 1.55;
+        }
+
+        /* ---------- FORM CARD ---------- */
+        .form-card {
+            background: linear-gradient(180deg, var(--panel) 0%, var(--ink-2) 100%);
+            border: 1px solid var(--line);
+            padding: 64px 56px 56px;
+            position: relative;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.55);
+        }
+
+        .form-card::before,
+        .form-card::after {
+            content: '';
+            position: absolute;
+            width: 22px;
+            height: 22px;
+            border: 1px solid var(--gold);
+            opacity: 0.8;
+        }
+
+        .form-card::before {
+            top: -1px;
+            left: -1px;
+            border-right: none;
+            border-bottom: none;
+        }
+
+        .form-card::after {
+            bottom: -1px;
+            right: -1px;
+            border-left: none;
+            border-top: none;
+        }
+
+        .section-title {
+            font-family: var(--serif);
+            font-size: 1.75rem;
+            font-weight: 500;
+            color: var(--ivory);
+            margin-bottom: 32px;
+            display: flex;
+            align-items: baseline;
+            gap: 16px;
+            counter-increment: sec;
+        }
+
+        .section-title::before {
+            content: counter(sec, upper-roman);
+            font-family: var(--sans);
+            font-size: 0.7rem;
+            font-weight: 500;
+            letter-spacing: 0.25em;
+            color: var(--gold);
+            min-width: 28px;
+        }
+
+        .section-title::after {
+            content: '';
+            flex: 1;
+            height: 1px;
+            background: linear-gradient(90deg, var(--line-strong), transparent);
+            align-self: center;
+        }
+
+        .section-title .icon {
+            display: none;
+        }
+
+        .form-card {
+            counter-reset: sec;
+        }
+
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+            gap: 28px 32px;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .form-group.full-width {
+            grid-column: 1 / -1;
+        }
+
+        .form-group label {
+            font-size: 0.68rem;
+            font-weight: 500;
+            letter-spacing: 0.22em;
+            text-transform: uppercase;
+            color: var(--text-3);
+            transition: color 0.3s var(--ease);
+        }
+
+        .form-group:focus-within label {
+            color: var(--gold);
+        }
+
+        .form-group label .required {
+            color: var(--gold);
+            margin-left: 4px;
+        }
+
+        .form-group input,
+        .form-group textarea,
+        .form-group select {
+            background: transparent;
+            border: none;
+            border-bottom: 1px solid var(--line);
+            padding: 10px 0 12px;
+            color: var(--ivory);
+            font-family: var(--sans);
+            font-size: 1.02rem;
+            font-weight: 300;
+            outline: none;
+            transition: border-color 0.3s var(--ease);
+            border-radius: 0;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus,
+        .form-group select:focus {
+            border-bottom-color: var(--gold);
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: var(--text-3);
+            font-style: italic;
+            font-family: var(--serif);
+            font-size: 1.05rem;
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 70px;
+        }
+
+        /* ---------- UPLOAD ---------- */
+        .upload-zone {
+            border: 1px solid var(--line);
+            padding: 56px 24px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.4s var(--ease);
+            background:
+                repeating-linear-gradient(45deg, transparent 0 14px, rgba(201, 169, 110, 0.025) 14px 15px),
+                var(--field);
+            position: relative;
+        }
+
+        .upload-zone:hover,
+        .upload-zone.dragover {
+            border-color: var(--gold);
+            background-color: var(--field-focus);
+            box-shadow: 0 0 60px rgba(201, 169, 110, 0.08) inset;
+        }
+
+        .upload-zone .upload-icon {
+            font-size: 1.6rem;
+            margin-bottom: 18px;
+            display: block;
+            filter: grayscale(1) sepia(1) saturate(2.4) hue-rotate(5deg) brightness(0.9);
+            opacity: 0.85;
+        }
+
+        .upload-zone .upload-text {
+            font-family: var(--serif);
+            font-size: 1.35rem;
+            color: var(--text);
+            margin-bottom: 6px;
+        }
+
+        .upload-zone .upload-text strong {
+            color: var(--gold-soft);
+            font-weight: 500;
+            font-style: italic;
+        }
+
+        .upload-zone .upload-subtext {
+            font-size: 0.68rem;
+            letter-spacing: 0.2em;
+            text-transform: uppercase;
+            color: var(--text-3);
+        }
+
+        .upload-zone input[type="file"] {
+            position: absolute;
+            inset: 0;
+            opacity: 0;
+            cursor: pointer;
+        }
+
+        .image-preview-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+            gap: 14px;
+            margin-top: 24px;
+        }
+
+        .image-preview-item {
+            position: relative;
+            overflow: hidden;
+            aspect-ratio: 4/3;
+            border: 1px solid var(--line);
+            animation: rise 0.5s var(--ease);
+        }
+
+        @keyframes rise {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .image-preview-item img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            filter: saturate(0.92);
+            transition: transform 0.7s var(--ease), filter 0.4s;
+        }
+
+        .image-preview-item:hover img {
+            transform: scale(1.06);
+            filter: saturate(1.05);
+        }
+
+        .image-preview-item .remove-btn {
+            position: absolute;
+            top: 8px;
+            right: 8px;
+            width: 26px;
+            height: 26px;
+            background: rgba(12, 11, 10, 0.85);
+            border: 1px solid var(--line-strong);
+            color: var(--gold-soft);
+            font-size: 11px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            opacity: 0;
+            transition: all 0.25s var(--ease);
+        }
+
+        .image-preview-item:hover .remove-btn {
+            opacity: 1;
+        }
+
+        .image-preview-item .remove-btn:hover {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        .image-preview-item .img-label {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            background: linear-gradient(transparent, rgba(0, 0, 0, 0.85));
+            color: var(--ivory);
+            font-size: 0.65rem;
+            letter-spacing: 0.08em;
+            padding: 16px 10px 7px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* ---------- TOGGLE ---------- */
+        .toggle-row {
+            display: flex;
+            align-items: center;
+            gap: 18px;
+            padding: 6px 0;
+        }
+
+        .toggle {
+            position: relative;
+            width: 46px;
+            height: 24px;
+            flex-shrink: 0;
+        }
+
+        .toggle input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            inset: 0;
+            border: 1px solid var(--line-strong);
+            border-radius: 9999px;
+            cursor: pointer;
+            transition: all 0.35s var(--ease);
+        }
+
+        .toggle-slider::before {
+            content: '';
+            position: absolute;
+            height: 16px;
+            width: 16px;
+            left: 3px;
+            top: 3px;
+            background: var(--text-3);
+            border-radius: 50%;
+            transition: all 0.35s var(--ease);
+        }
+
+        .toggle input:checked+.toggle-slider {
+            border-color: var(--gold);
+            background: rgba(201, 169, 110, 0.12);
+        }
+
+        .toggle input:checked+.toggle-slider::before {
+            transform: translateX(22px);
+            background: var(--gold);
+        }
+
+        .toggle-label {
+            font-size: 0.95rem;
+            color: var(--text-2);
+        }
+
+        /* ---------- BUTTONS ---------- */
+        .btn-row {
+            display: flex;
+            gap: 16px;
+            margin-top: 48px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            padding: 17px 36px;
+            font-family: var(--sans);
+            font-size: 0.72rem;
+            font-weight: 500;
+            letter-spacing: 0.24em;
+            text-transform: uppercase;
+            cursor: pointer;
+            border: 1px solid transparent;
+            text-decoration: none;
+            transition: all 0.4s var(--ease);
+            position: relative;
+        }
+
+        .btn-primary {
+            background: var(--gold-gradient);
+            color: #1a140a;
+            min-width: 240px;
+            font-weight: 600;
+        }
+
+        .btn-primary:hover:not(:disabled) {
+            box-shadow: 0 10px 40px rgba(201, 169, 110, 0.3);
+            transform: translateY(-2px);
+        }
+
+        .btn-primary:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--gold-soft);
+            border-color: var(--line-strong);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--gold);
+            background: rgba(201, 169, 110, 0.08);
+            color: var(--ivory);
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: var(--text-3);
+            padding-left: 12px;
+            padding-right: 12px;
+        }
+
+        .btn-ghost:hover {
+            color: var(--gold-soft);
+        }
+
+        .btn .spinner {
+            display: none;
+            width: 16px;
+            height: 16px;
+            border: 1.5px solid rgba(26, 20, 10, 0.25);
+            border-top-color: #1a140a;
+            border-radius: 50%;
+            animation: spin 0.8s linear infinite;
+        }
+
+        .btn.loading .spinner {
+            display: inline-block;
+        }
+
+        .btn.loading .btn-text {
+            display: none;
+        }
+
+        @keyframes spin {
+            to {
+                transform: rotate(360deg);
+            }
+        }
+
+        .section-divider {
+            border: none;
+            height: 1px;
+            background: var(--line);
+            margin: 56px 0;
+        }
+
+        /* ---------- PROGRESS ---------- */
+        .progress-container {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .progress-container.active {
+            display: block;
+            animation: rise 0.5s var(--ease);
+        }
+
+        .progress-card {
+            border: 1px solid var(--line);
+            background: var(--panel);
+            padding: 56px 40px;
+            text-align: center;
+        }
+
+        .progress-spinner {
+            width: 54px;
+            height: 54px;
+            border: 1px solid var(--line);
+            border-top-color: var(--gold);
+            border-radius: 50%;
+            animation: spin 1.2s linear infinite;
+            margin: 0 auto 28px;
+        }
+
+        .progress-card h3 {
+            font-family: var(--serif) !important;
+            font-weight: 500;
+            font-size: 1.8rem;
+            color: var(--ivory);
+        }
+
+        .progress-text {
+            font-family: var(--serif);
+            font-style: italic;
+            font-size: 1.1rem;
+            color: var(--gold-soft);
+            min-height: 1.6em;
+        }
+
+        .progress-bar-wrapper {
+            width: 100%;
+            max-width: 480px;
+            height: 1px;
+            background: var(--line);
+            margin: 28px auto;
+            position: relative;
+        }
+
+        .progress-bar {
+            height: 3px;
+            top: -1px;
+            position: absolute;
+            left: 0;
+            background: var(--gold-gradient);
+            width: 0%;
+            transition: width 0.6s var(--ease);
+            box-shadow: 0 0 14px rgba(201, 169, 110, 0.6);
+        }
+
+        .progress-card p[style] {
+            font-size: 0.68rem !important;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            color: var(--text-3) !important;
+        }
+
+        /* ---------- RESULT ---------- */
+        .result-container {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .result-container.active {
+            display: block;
+            animation: rise 0.6s var(--ease);
+        }
+
+        .result-card {
+            background: linear-gradient(180deg, var(--panel), var(--ink-2));
+            border: 1px solid var(--line-strong);
+            padding: 56px;
+            box-shadow: 0 40px 100px rgba(0, 0, 0, 0.5);
+        }
+
+        .result-header {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+            margin-bottom: 40px;
+        }
+
+        .result-header .check-icon {
+            width: 52px;
+            height: 52px;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.1rem;
+            flex-shrink: 0;
+        }
+
+        .result-header h2 {
+            font-family: var(--serif);
+            font-size: 2rem;
+            font-weight: 500;
+            color: var(--ivory);
+            line-height: 1.15;
+        }
+
+        .result-header p {
+            color: var(--text-3);
+            font-size: 0.72rem;
+            letter-spacing: 0.18em;
+            text-transform: uppercase;
+            margin-top: 4px;
+        }
+
+        .video-preview {
+            width: 100%;
+            max-width: 880px;
+            margin: 0 auto 40px;
+            border: 1px solid var(--line-strong);
+            padding: 10px;
+            background: #000;
+            box-shadow: 0 30px 80px rgba(0, 0, 0, 0.6);
+        }
+
+        .video-preview video {
+            width: 100%;
+            display: block;
+        }
+
+        .result-actions {
+            display: flex;
+            gap: 16px;
+            justify-content: center;
+            flex-wrap: wrap;
+        }
+
+        .script-preview {
+            margin-top: 48px;
+            border-top: 1px solid var(--line);
+            padding-top: 32px;
+            max-height: 320px;
+            overflow-y: auto;
+        }
+
+        .script-preview h3 {
+            font-family: var(--serif);
+            font-size: 1.3rem;
+            font-weight: 500;
+            color: var(--gold-soft);
+            margin-bottom: 16px;
+        }
+
+        .script-preview pre {
+            font-family: ui-monospace, 'SF Mono', Menlo, monospace;
+            font-size: 0.78rem;
+            color: var(--text-2);
+            white-space: pre-wrap;
+            word-break: break-word;
+            line-height: 1.8;
+        }
+
+        /* ---------- ERROR ---------- */
+        .error-container {
+            display: none;
+            margin-top: 40px;
+        }
+
+        .error-container.active {
+            display: block;
+            animation: rise 0.4s var(--ease);
+        }
+
+        .error-card {
+            border: 1px solid rgba(217, 139, 126, 0.4);
+            border-left: 3px solid var(--error);
+            background: rgba(217, 139, 126, 0.05);
+            padding: 32px 36px;
+        }
+
+        .error-card h3 {
+            font-family: var(--serif);
+            font-size: 1.5rem;
+            font-weight: 500;
+            color: var(--error);
+            margin-bottom: 8px;
+        }
+
+        .error-card p {
+            color: var(--text-2);
+            font-size: 0.95rem;
+        }
+
+        /* ---------- FOOTER ---------- */
+        .footer {
+            text-align: center;
+            padding: 72px 0 8px;
+            color: var(--text-3);
+            font-size: 0.66rem;
+            letter-spacing: 0.3em;
+            text-transform: uppercase;
+        }
+
+        .footer::before {
+            content: '';
+            display: block;
+            width: 40px;
+            height: 1px;
+            background: var(--line-strong);
+            margin: 0 auto 28px;
+        }
+
+        .footer a {
+            color: var(--gold);
+            text-decoration: none;
+        }
+
+        /* ---------- RESPONSIVE ---------- */
+        @media (max-width: 768px) {
+            .app-wrapper {
+                padding: 16px 16px 56px;
+            }
+
+            .header {
+                padding: 56px 0 40px;
+            }
+
+            .form-card,
+            .result-card {
+                padding: 40px 24px 32px;
+            }
+
+            .form-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .btn-row {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .btn {
+                width: 100%;
+            }
+
+            .result-header {
+                flex-direction: column;
+                text-align: center;
+            }
+
+            .image-preview-grid {
+                grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            }
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--ink);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: var(--line-strong);
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--gold);
+        }
+
+        ::selection {
+            background: var(--gold);
+            color: var(--ink);
+        }
+
+        .mt-lg {
+            margin-top: 24px;
+        }
+
+        .mt-xl {
+            margin-top: 32px;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-wrapper">
+
+        <!-- =============== HEADER =============== -->
+        <header class="header">
+            <div class="header__badge">
+                <span class="pulse"></span>
+                AI Film Studio
+                <span class="pulse"></span>
+            </div>
+            <h1>Property Video Generator</h1>
+            <p>Turn property photographs and details into a refined promotional film — effortlessly, in moments.</p>
+        </header>
+
+        <!-- =============== MAIN FORM =============== -->
+        <form id="propertyForm" class="form-card" enctype="multipart/form-data">
+
+            <div class="section-title">
+                <span class="icon">🏠</span> Property Details
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="property_name">Property Name <span class="required">*</span></label>
+                    <input type="text" id="property_name" name="property_name" placeholder="e.g. Sunrise Heights"
+                        required>
+                </div>
+
+                <div class="form-group">
+                    <label for="location">Location</label>
+                    <input type="text" id="location" name="location" placeholder="e.g. Whitefield, Bangalore">
+                </div>
+
+                <div class="form-group">
+                    <label for="price">Price</label>
+                    <input type="text" id="price" name="price" placeholder="e.g. ₹85 Lakhs or $500,000">
+                </div>
+
+                <div class="form-group">
+                    <label for="property_type">Property Type</label>
+                    <input type="text" id="property_type" name="property_type"
+                        placeholder="e.g. 2 BHK Apartment, Villa, Studio">
+                </div>
+
+                <div class="form-group">
+                    <label for="bedrooms">Bedrooms</label>
+                    <input type="text" id="bedrooms" name="bedrooms" placeholder="e.g. 2">
+                </div>
+
+                <div class="form-group">
+                    <label for="bathrooms">Bathrooms</label>
+                    <input type="text" id="bathrooms" name="bathrooms" placeholder="e.g. 2">
+                </div>
+
+                <div class="form-group">
+                    <label for="area">Area / Size</label>
+                    <input type="text" id="area" name="area" placeholder="e.g. 1250 sq.ft.">
+                </div>
+
+                <div class="form-group">
+                    <label for="key_features">Key Features (comma-separated)</label>
+                    <textarea id="key_features" name="key_features"
+                        placeholder="e.g. Spacious living room, Modular kitchen, Swimming pool, Gym"></textarea>
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="section-title">
+                <span class="icon">📞</span> Contact & Call-to-Action
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label for="contact_name">Contact Name</label>
+                    <input type="text" id="contact_name" name="contact_name" placeholder="e.g. Rahul Sharma">
+                </div>
+
+                <div class="form-group">
+                    <label for="contact_phone">Phone Number</label>
+                    <input type="text" id="contact_phone" name="contact_phone" placeholder="e.g. +91 98765 43210">
+                </div>
+
+                <div class="form-group">
+                    <label for="contact_email">Email</label>
+                    <input type="email" id="contact_email" name="contact_email" placeholder="e.g. info@property.com">
+                </div>
+
+                <div class="form-group">
+                    <label for="cta_text">CTA Text</label>
+                    <input type="text" id="cta_text" name="cta_text" placeholder="e.g. Book Your Site Visit Today!"
+                        value="Book Your Site Visit Today!">
+                </div>
+            </div>
+
+            <hr class="section-divider">
+
+            <div class="section-title">
+                <span class="icon">📸</span> Property Images
+            </div>
+
+            <div class="upload-zone" id="uploadZone">
+                <input type="file" id="imageInput" name="images" multiple
+                    accept="image/png,image/jpeg,image/jpg,image/webp">
+                <span class="upload-icon">🖼️</span>
+                <div class="upload-text">
+                    Drag & drop images here, or <strong>click to browse</strong>
+                </div>
+                <div class="upload-subtext">
+                    PNG, JPG, or WEBP · 4–8 images recommended · Max 10 images
+                </div>
+            </div>
+
+            <div class="image-preview-grid" id="imagePreviewGrid"></div>
+
+            <hr class="section-divider">
+
+            <div class="section-title">
+                <span class="icon">⚙️</span> Options
+            </div>
+
+            <div class="toggle-row">
+                <label class="toggle">
+                    <input type="checkbox" id="include_narration" name="include_narration" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Include AI voiceover narration (gTTS)</span>
+            </div>
+
+            <div class="btn-row">
+                <button type="submit" class="btn btn-primary" id="generateBtn">
+                    <span class="spinner"></span>
+                    <span class="btn-text">🎬 Generate Video</span>
+                </button>
+                <button type="button" class="btn btn-secondary" id="loadSampleBtn">
+                    📋 Load Sample Data
+                </button>
+                <button type="reset" class="btn btn-ghost" id="resetBtn">
+                    ↺ Reset Form
+                </button>
+            </div>
+        </form>
+
+        <!-- =============== PROGRESS =============== -->
+        <div class="progress-container" id="progressContainer">
+            <div class="progress-card">
+                <div class="progress-spinner"></div>
+                <h3 style="font-family: var(--serif); margin-bottom: 8px;">
+                    Generating Your Video...
+                </h3>
+                <p class="progress-text" id="progressText">
+                    Preparing image scenes and compositing video...
+                </p>
+                <div class="progress-bar-wrapper">
+                    <div class="progress-bar" id="progressBar"></div>
+                </div>
+                <p style="color: var(--text-3); font-size: 0.8rem; margin-top: 8px;">
+                    This may take 30–90 seconds depending on the number of images.
+                </p>
+            </div>
+        </div>
+
+        <!-- =============== RESULT =============== -->
+        <div class="result-container" id="resultContainer">
+            <div class="result-card">
+                <div class="result-header">
+                    <div class="check-icon">✓</div>
+                    <div>
+                        <h2>Video Generated Successfully!</h2>
+                        <p id="resultMeta"></p>
+                    </div>
+                </div>
+
+                <div class="video-preview" id="videoPreviewBox">
+                    <video id="videoPlayer" controls preload="metadata">
+                        Your browser does not support the video tag.
+                    </video>
+                </div>
+
+                <div class="result-actions">
+                    <a class="btn btn-primary" id="downloadBtn" href="#" download>
+                        ⬇ Download MP4
+                    </a>
+                    <button class="btn btn-secondary" id="newVideoBtn">
+                        ➕ Create Another Video
+                    </button>
+                </div>
+
+                <div class="script-preview mt-xl">
+                    <h3>📝 Generated Script</h3>
+                    <pre id="scriptOutput"></pre>
+                </div>
+            </div>
+        </div>
+
+        <!-- =============== ERROR =============== -->
+        <div class="error-container" id="errorContainer">
+            <div class="error-card">
+                <h3>⚠ Video Generation Failed</h3>
+                <p id="errorMessage"></p>
+                <button class="btn btn-secondary mt-lg" onclick="hideError()">Try Again</button>
+            </div>
+        </div>
+
+        <!-- =============== FOOTER =============== -->
+        <footer class="footer">
+            AI Property Video Generator · Built with Flask, MoviePy, gTTS & Gemini
+        </footer>
+    </div>
+
+    <!-- =============== JAVASCRIPT (unchanged) =============== -->
+    <script>
+        // ---------------------------------------------------
+        // State
+        // ---------------------------------------------------
+        let selectedFiles = [];
+
+        // ---------------------------------------------------
+        // DOM refs
+        // ---------------------------------------------------
+        const form = document.getElementById('propertyForm');
+        const generateBtn = document.getElementById('generateBtn');
+        const loadSampleBtn = document.getElementById('loadSampleBtn');
+        const resetBtn = document.getElementById('resetBtn');
+        const imageInput = document.getElementById('imageInput');
+        const uploadZone = document.getElementById('uploadZone');
+        const previewGrid = document.getElementById('imagePreviewGrid');
+        const progressContainer = document.getElementById('progressContainer');
+        const progressBar = document.getElementById('progressBar');
+        const progressText = document.getElementById('progressText');
+        const resultContainer = document.getElementById('resultContainer');
+        const errorContainer = document.getElementById('errorContainer');
+
+        // ---------------------------------------------------
+        // Drag & Drop
+        // ---------------------------------------------------
+        ['dragenter', 'dragover'].forEach(evt => {
+            uploadZone.addEventListener(evt, e => {
+                e.preventDefault();
+                uploadZone.classList.add('dragover');
+            });
+        });
+        ['dragleave', 'drop'].forEach(evt => {
+            uploadZone.addEventListener(evt, e => {
+                e.preventDefault();
+                uploadZone.classList.remove('dragover');
+            });
+        });
+        uploadZone.addEventListener('drop', e => {
+            const files = Array.from(e.dataTransfer.files).filter(f => f.type.startsWith('image/'));
+            addFiles(files);
+        });
+
+        imageInput.addEventListener('change', () => {
+            addFiles(Array.from(imageInput.files));
+            imageInput.value = '';  // reset so same file can be re-selected
+        });
+
+        function addFiles(files) {
+            for (const file of files) {
+                if (selectedFiles.length >= 10) break;
+                if (!file.type.startsWith('image/')) continue;
+                selectedFiles.push(file);
+            }
+            renderPreviews();
+        }
+
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            renderPreviews();
+        }
+
+        function renderPreviews() {
+            previewGrid.innerHTML = '';
+            selectedFiles.forEach((file, i) => {
+                const div = document.createElement('div');
+                div.className = 'image-preview-item';
+                const img = document.createElement('img');
+                img.src = URL.createObjectURL(file);
+                img.alt = file.name;
+
+                const removeBtn = document.createElement('button');
+                removeBtn.className = 'remove-btn';
+                removeBtn.innerHTML = '✕';
+                removeBtn.type = 'button';
+                removeBtn.onclick = () => removeFile(i);
+
+                const label = document.createElement('div');
+                label.className = 'img-label';
+                label.textContent = `${i + 1}. ${file.name}`;
+
+                div.append(img, removeBtn, label);
+                previewGrid.appendChild(div);
+            });
+        }
+
+        // ---------------------------------------------------
+        // Load Sample Data
+        // ---------------------------------------------------
+        loadSampleBtn.addEventListener('click', async () => {
+            try {
+                const res = await fetch('/api/sample-data');
+                const data = await res.json();
+
+                // Fill form fields
+                for (const [key, value] of Object.entries(data)) {
+                    const el = document.getElementById(key);
+                    if (el) {
+                        if (Array.isArray(value)) {
+                            el.value = value.join(', ');
+                        } else {
+                            el.value = value;
+                        }
+                    }
+                }
+
+                // Flash effect
+                loadSampleBtn.textContent = '✓  Sample Loaded!';
+                setTimeout(() => {
+                    loadSampleBtn.innerHTML = '📋  Load Sample Data';
+                }, 1500);
+            } catch (e) {
+                console.error('Failed to load sample data:', e);
+            }
+        });
+
+        // ---------------------------------------------------
+        // Reset
+        // ---------------------------------------------------
+        resetBtn.addEventListener('click', () => {
+            selectedFiles = [];
+            renderPreviews();
+            hideResult();
+            hideError();
+        });
+
+        // ---------------------------------------------------
+        // Form Submit — Generate Video
+        // ---------------------------------------------------
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // Validate
+            if (selectedFiles.length === 0) {
+                showError('Please upload at least one property image.');
+                return;
+            }
+
+            const propertyName = document.getElementById('property_name').value.trim();
+            if (!propertyName) {
+                showError('Property name is required.');
+                return;
+            }
+
+            // Build property data
+            const propertyData = {};
+            const fields = [
+                'property_name', 'location', 'price', 'property_type',
+                'bedrooms', 'bathrooms', 'area', 'key_features',
+                'contact_name', 'contact_phone', 'contact_email', 'cta_text'
+            ];
+            for (const f of fields) {
+                const el = document.getElementById(f);
+                if (el && el.value.trim()) {
+                    propertyData[f] = el.value.trim();
+                }
+            }
+            propertyData.include_narration = document.getElementById('include_narration').checked;
+
+            // Build FormData
+            const formData = new FormData();
+            formData.append('property_data', JSON.stringify(propertyData));
+            for (const file of selectedFiles) {
+                formData.append('images', file);
+            }
+
+            // UI: show progress
+            hideError();
+            hideResult();
+            showProgress();
+            setButtonLoading(true);
+
+            // Fake progress animation
+            let progress = 0;
+            const progressInterval = setInterval(() => {
+                progress += Math.random() * 8;
+                if (progress > 90) progress = 90;
+                progressBar.style.width = progress + '%';
+
+                const messages = [
+                    'Analyzing property details...',
+                    'Generating AI script and captions...',
+                    'Processing and resizing images...',
+                    'Building video scenes with transitions...',
+                    'Adding voiceover narration...',
+                    'Compositing final video...',
+                    'Encoding MP4...',
+                ];
+                const idx = Math.min(Math.floor(progress / 14), messages.length - 1);
+                progressText.textContent = messages[idx];
+            }, 1200);
+
+            try {
+                const response = await fetch('/api/generate', {
+                    method: 'POST',
+                    body: formData,
+                });
+
+                clearInterval(progressInterval);
+                progressBar.style.width = '100%';
+
+                const result = await response.json();
+
+                if (!response.ok || result.error) {
+                    throw new Error(result.error || 'Unknown error');
+                }
+
+                // Show result
+                hideProgress();
+                showResult(result);
+
+            } catch (err) {
+                clearInterval(progressInterval);
+                hideProgress();
+                showError(err.message || 'An unexpected error occurred.');
+            } finally {
+                setButtonLoading(false);
+            }
+        });
+
+        // ---------------------------------------------------
+        // UI helpers
+        // ---------------------------------------------------
+        function setButtonLoading(loading) {
+            if (loading) {
+                generateBtn.classList.add('loading');
+                generateBtn.disabled = true;
+            } else {
+                generateBtn.classList.remove('loading');
+                generateBtn.disabled = false;
+            }
+        }
+
+        function showProgress() {
+            progressContainer.classList.add('active');
+            progressBar.style.width = '0%';
+            window.scrollTo({ top: progressContainer.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function hideProgress() {
+            progressContainer.classList.remove('active');
+        }
+
+        function showResult(result) {
+            resultContainer.classList.add('active');
+
+            // Video player
+            const player = document.getElementById('videoPlayer');
+            player.src = result.video_url;
+
+            // Download link
+            const downloadBtn = document.getElementById('downloadBtn');
+            downloadBtn.href = result.video_url;
+            downloadBtn.download = result.video_filename || 'property_video.mp4';
+
+            // Meta info
+            document.getElementById('resultMeta').textContent =
+                `${result.num_images} image(s) · Job ID: ${result.job_id}`;
+
+            // Script
+            document.getElementById('scriptOutput').textContent =
+                JSON.stringify(result.script, null, 2);
+
+            window.scrollTo({ top: resultContainer.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function hideResult() {
+            resultContainer.classList.remove('active');
+        }
+
+        function showError(message) {
+            errorContainer.classList.add('active');
+            document.getElementById('errorMessage').textContent = message;
+            window.scrollTo({ top: errorContainer.offsetTop - 100, behavior: 'smooth' });
+        }
+
+        function hideError() {
+            errorContainer.classList.remove('active');
+        }
+
+        // New Video button
+        document.getElementById('newVideoBtn').addEventListener('click', () => {
+            hideResult();
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        });
+    </script>
+</body>
+
+</html>
