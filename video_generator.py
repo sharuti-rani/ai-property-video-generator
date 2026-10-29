@@ -243,7 +243,7 @@ def _build_scene_clip(
     bg_clip = ImageClip(img_arr).with_duration(duration)
 
     # Ken Burns effect — slow zoom
-    # bg_clip = bg_clip.resized(lambda t: 1 + 0.04 * (t / duration))
+    bg_clip = bg_clip.resized(lambda t: 1 + 0.04 * (t / duration))
 
     # Darken bottom for caption readability
     gradient_h = 250
