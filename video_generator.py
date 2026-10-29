@@ -466,15 +466,27 @@ def generate_video(
     logger.info(f"Exporting video to {output_path}...")
     os.makedirs(os.path.dirname(output_path) or ".", exist_ok=True)
 
-    video.write_videofile(
-        output_path,
-        fps=VIDEO_FPS,
-        codec="libx264",
-        audio_codec="aac",
-        preset="medium",
-        threads=4,
-        logger="bar",
-    )
+    # video.write_videofile(
+    #     output_path,
+    #     fps=VIDEO_FPS,
+    #     codec="libx264",
+    #     audio_codec="aac",
+    #     preset="medium",
+    #     threads=4,
+    #     logger="bar",
+    # )
+
+    
+video.write_videofile(
+    output_path,
+    fps=VIDEO_FPS,
+    codec="libx264",
+    audio_codec="aac",
+    preset="ultrafast",
+    threads=1,
+    logger=None,
+)
+
 
     # Clean up clips
     video.close()
